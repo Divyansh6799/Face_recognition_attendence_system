@@ -1,4 +1,5 @@
-from tkinter.constants import CENTER
+from tkinter.constants import ACTIVE, CENTER, DISABLED, END
+from tkinter.font import NORMAL
 from PIL import Image, ImageTk
 import tkinter as tk
 import argparse
@@ -26,7 +27,7 @@ class Application:
         # self.destructor function gets fired when the window is closed
         self.root.protocol('WM_DELETE_WINDOW', self.destructor)
         F= ("Helvetica",16,"italic")
-        self.lb=tk.Label(self.root, text="ENTER YOUR NAME AND SAVE IMAGE",font=F,justify=CENTER,fg="blue")
+        self.lb=tk.Label(self.root, text="Start Face Recognition",font=F,justify=CENTER,fg="blue")
         self.lb.pack()
         self.panel = tk.Label(self.root)  # initialize image panel
         self.panel.pack(padx=10, pady=10)
@@ -34,18 +35,26 @@ class Application:
         
         self.textNumber=tk.Entry(self.root,font=F)
         self.textNumber.pack(fill="both",pady=20) 
-       
+        self.textNumber.insert(0, "Enter Your Name")
+        self.textNumber.configure(state=DISABLED)
+        def on_click(event):
+            self.textNumber.configure(state=NORMAL)
+            self.textNumber.delete(0, END)
+
+            # make the callback only work once
+            self.textNumber.unbind('<Button-1>', on_click_id)
+
+        on_click_id = self.textNumber.bind('<Button-1>', on_click)
         # create a button, that when pressed, will take the current frame and save it to file
-        btn = tk.Button(self.root, text="Capture",
-                        command=self.take_snapshot)
-        btn.pack(fill="both", expand=True, padx=10, pady=4)
+        self.btn = tk.Button(self.root, text="Capture",state="disabled",command=self.take_snapshot)
+        self.btn.pack(fill="both", expand=True, padx=10, pady=4)
         # button for face recognition
-        btn1=tk.Button(self.root,text="Attendence")
+        btn1=tk.Button(self.root,text="start face recognition",command=self.video_loop)
         btn1.pack(fill="both",expand=True,padx=10,pady=4)
 
         # start a self.video_loop that constantly pools the video sensor
         # for the most recently read frame
-        self.video_loop()
+        # self.video_loop()
         
     def video_loop(self):
         """ Get frame from the video stream and show it in Tkinter """
@@ -81,6 +90,8 @@ class Application:
                     # cv2.putText(frame, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
                     markAttendance(name)
                 else :
+                    self.lb['text']="NOT MATCHED"
+                    self.btn['state']="normal"
                     print("not matched")
                     print("here you are new so that's why first you capture your image.")
                     
@@ -90,11 +101,13 @@ class Application:
     def take_snapshot(self):
         """ Take snapshot and save it to the file """
       #   ts = datetime.datetime.now() # grab the current timestamp
-       
-        filename = f'Training_images/'+self.textNumber.get()+'.png'  # construct filename
-        p = os.path.join(self.output_path, filename)  # construct output path
-        self.current_image.save(p,'png')  # save image as jpeg file
-        print("saved {}".format(filename))
+        if self.textNumber['text']=="Enter Your Name" :
+            print("Enter your name")
+        else:    
+            filename = f'Training_images/'+self.textNumber.get()+'.png'  # construct filename
+            p = os.path.join(self.output_path, filename)  # construct output path
+            self.current_image.save(p,'png')  # save image as jpeg file
+            print("saved {}".format(filename))
    
     def destructor(self):
         """ Destroy the root object and release all resources """
