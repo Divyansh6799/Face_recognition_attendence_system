@@ -95,43 +95,7 @@ class Application:
         p = os.path.join(self.output_path, filename)  # construct output path
         self.current_image.save(p,'png')  # save image as jpeg file
         print("saved {}".format(filename))
-
-    # def face(self):
-    #     print("start face recognition")
-    #     while True:
-    #         ok, frame = self.vs.read()  # read frame from video stream
-    #         if ok:  # frame captured without any errors
-    #             # convert colors from BGR to RGBA
-    #             cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-    #             self.current_image = Image.fromarray(
-    #                 cv2image)  # convert image for PIL
-    #             # convert image for tkinter
-    #             imgtk = ImageTk.PhotoImage(image=self.current_image)
-    #             self.panel.imgtk = imgtk  # anchor imgtk so it does not be deleted by garbage-collector
-    #             self.panel.config(image=imgtk)  # show the image
-    #         imgS = cv2.resize(frame, (0, 0), None, 0.25, 0.25)
-    #         imgS = cv2.cvtColor(imgS, cv2.COLOR_BGR2RGB)
-
-    #         facesCurFrame = face_recognition.face_locations(imgS)
-    #         encodesCurFrame = face_recognition.face_encodings(imgS, facesCurFrame)
-
-    #         for encodeFace, faceLoc in zip(encodesCurFrame, facesCurFrame):
-    #             matches = face_recognition.compare_faces(encodeListKnown, encodeFace)
-    #             faceDis = face_recognition.face_distance(encodeListKnown, encodeFace)
-    #             # print(faceDis)
-    #             matchIndex = np.argmin(faceDis)
-
-    #             if matches[matchIndex]:
-    #                 name = classNames[matchIndex].upper()
-    #                 print(name)
-    #                 y1, x2, y2, x1 = faceLoc
-    #                 y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
-    #                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-    #                 cv2.rectangle(frame, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)
-    #                 cv2.putText(frame, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
-    #                 markAttendance(name)
-    #      # call the same function after 30 milliseconds
-    #         self.root.after(30, self.face)    
+   
     def destructor(self):
         """ Destroy the root object and release all resources """
         print("closing...")
