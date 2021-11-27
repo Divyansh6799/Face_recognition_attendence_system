@@ -29,6 +29,12 @@ class Application:
         F= ("Helvetica",16,"italic")
         self.lb=tk.Label(self.root, text="Start Face Recognition",font=F,justify=CENTER,fg="blue")
         self.lb.pack()
+        time_now = datetime.datetime.now()
+        self.tStr = time_now.strftime('%H:%M:%S')
+        self.dStr = time_now.strftime('%d/%m/%Y')
+        self.lb1=tk.Label(self.root, text="Date-"+self.dStr,font=F,justify=CENTER,fg="red")
+        self.lb1.pack()
+       
         self.panel = tk.Label(self.root)  # initialize image panel
         self.panel.pack(padx=10, pady=10)
         # create a textfield
@@ -49,9 +55,8 @@ class Application:
         self.btn = tk.Button(self.root, text="Capture",state="disabled",command=self.take_snapshot)
         self.btn.pack(fill="both", expand=True, padx=10, pady=4)
         # button for face recognition
-        btn1=tk.Button(self.root,text="start face recognition",command=self.video_loop)
-        btn1.pack(fill="both",expand=True,padx=10,pady=4)
-
+        self.btn1=tk.Button(self.root,text="start face recognition",command=self.video_loop)
+        self.btn1.pack(fill="both",expand=True,padx=10,pady=4)
         # start a self.video_loop that constantly pools the video sensor
         # for the most recently read frame
         # self.video_loop()
@@ -83,6 +88,7 @@ class Application:
                     name = classNames[matchIndex].upper()
                     print(name)
                     self.lb['text']=name
+                    self.btn['state']="disabled"
                     # y1, x2, y2, x1 = faceLoc
                     # y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
                     # cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
@@ -91,7 +97,7 @@ class Application:
                     markAttendance(name)
                 else :
                     self.lb['text']="NOT MATCHED"
-                    self.btn['state']="normal"
+                    self.btn['state']="normal"     
                     print("not matched")
                     print("here you are new so that's why first you capture your image.")
                     
@@ -106,7 +112,7 @@ class Application:
         else:    
             filename = f'Training_images/'+self.textNumber.get()+'.png'  # construct filename
             p = os.path.join(self.output_path, filename)  # construct output path
-            self.current_image.save(p,'png')  # save image as jpeg file
+            self.current_image.save(p,'png')  # save image as png file
             print("saved {}".format(filename))
    
     def destructor(self):
@@ -130,7 +136,7 @@ def findEncodings(images):
     encodeList = []
     for img in images:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        encode = face_recognition.face_encodings(img)[0]
+        encode = face_recognition.face_encodings(img)[0]    
         encodeList.append(encode)
     return encodeList
 
@@ -139,15 +145,15 @@ def markAttendance(name):
     with open('attendence.csv', 'r+') as f:
         myDataList = f.readlines()
         nameList = []
+        time_now = datetime.datetime.now()
+        tStr = time_now.strftime('%H:%M:%S')
+        dStr = time_now.strftime('%d/%m/%Y')
         for line in myDataList:
             entry = line.split(',')
             nameList.append(entry[0])
         if name not in nameList:
-            time_now = datetime.datetime.now()
-            tStr = time_now.strftime('%H:%M:%S')
-            dStr = time_now.strftime('%d/%m/%Y')
-            f.writelines(f'\n{name},{tStr},{dStr}')
-
+           f.writelines(f'\n{name},{tStr},{dStr}')   
+                
 encodeListKnown = findEncodings(images)
 print('Encoding Complete')
     
