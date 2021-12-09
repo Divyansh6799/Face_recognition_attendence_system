@@ -7,6 +7,7 @@ import datetime
 import cv2
 import os
 import numpy as np
+import pandas as pd
 import face_recognition
 
 
@@ -30,11 +31,10 @@ class Application:
         self.lb=tk.Label(self.root, text="Start Face Recognition",font=F,justify=CENTER,fg="blue")
         self.lb.pack()
         time_now = datetime.datetime.now()
-        self.tStr = time_now.strftime('%H:%M:%S')
+        self.tStr = time_now.strftime('%H:%M')
         self.dStr = time_now.strftime('%d/%m/%Y')
         self.lb1=tk.Label(self.root, text="Date-"+self.dStr,font=F,justify=CENTER,fg="red")
         self.lb1.pack()
-       
         self.panel = tk.Label(self.root)  # initialize image panel
         self.panel.pack(padx=10, pady=10)
         # create a textfield
@@ -89,12 +89,8 @@ class Application:
                     print(name)
                     self.lb['text']=name
                     self.btn['state']="disabled"
-                    # y1, x2, y2, x1 = faceLoc
-                    # y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
-                    # cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    # cv2.rectangle(frame, (x1, y2 - 35), (x2, y2), (0, 255, 0), cv2.FILLED)
-                    # cv2.putText(frame, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
-                    markAttendance(name)
+                    dStr=self.dStr
+                    markAttendance(name,dStr)
                 else :
                     self.lb['text']="NOT MATCHED"
                     self.btn['state']="normal"     
@@ -106,7 +102,6 @@ class Application:
    
     def take_snapshot(self):
         """ Take snapshot and save it to the file """
-      #   ts = datetime.datetime.now() # grab the current timestamp
         if self.textNumber['text']=="Enter Your Name" :
             print("Enter your name")
         else:    
@@ -117,6 +112,9 @@ class Application:
    
     def destructor(self):
         """ Destroy the root object and release all resources """
+        df=pd.read_csv("attendence.csv")
+        df.drop_duplicates(subset=['Name','Date'], inplace=True)
+        df.to_csv('attendence.csv', index=False) 
         print("closing...")
         self.root.destroy()
         self.vs.release()  # release web camera
@@ -126,12 +124,12 @@ path = 'Training_images'
 images = []
 classNames = []
 myList = os.listdir(path)
-print(myList)
+# print(myList)
 for cl in myList:
     curImg = cv2.imread(f'{path}/{cl}')
     images.append(curImg)
     classNames.append(os.path.splitext(cl)[0])
-print(classNames)
+# print(classNames)
 def findEncodings(images):
     encodeList = []
     for img in images:
@@ -141,19 +139,18 @@ def findEncodings(images):
     return encodeList
 
 
-def markAttendance(name):
+def markAttendance(name,dStr):
     with open('attendence.csv', 'r+') as f:
         myDataList = f.readlines()
         nameList = []
-        time_now = datetime.datetime.now()
-        tStr = time_now.strftime('%H:%M:%S')
-        dStr = time_now.strftime('%d/%m/%Y')
+        timenow=datetime.datetime.now()
+        t=timenow.strftime("%I:%M %p %A")
         for line in myDataList:
             entry = line.split(',')
             nameList.append(entry[0])
-        if name not in nameList:
-           f.writelines(f'\n{name},{tStr},{dStr}')   
-                
+        if name  in nameList:
+            f.writelines(f'\n{name},{t},{dStr}')
+                           
 encodeListKnown = findEncodings(images)
 print('Encoding Complete')
     
